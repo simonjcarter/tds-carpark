@@ -28,6 +28,14 @@ public class CarParkServiceImpl implements CarParkService {
         this.carParkRepository = carParkRepository;
         this.additionalChargeRate = additionalChargeRate;
         this.additionalChargeMinutes = additionalChargeMinutes;
+
+        if (additionalChargeMinutes < 0) {
+            throw new IllegalArgumentException("additionalChargeMinutes must be a positive integer");
+        }
+
+        if (additionalChargeRate == null || additionalChargeRate.signum() < 0) {
+            throw new IllegalArgumentException("additionalChargeRate must be a positive number");
+        }
     }
 
     @Override
@@ -56,7 +64,9 @@ public class CarParkServiceImpl implements CarParkService {
                 parkedVehicle.vehicleType().getCharge()
         );
 
-        var additionalMinutes = minutes.divide(BigDecimal.valueOf(additionalChargeMinutes), 0, RoundingMode.FLOOR);
+        var additionalMinutes =
+                additionalChargeMinutes == 0 ? BigDecimal.ZERO :
+                        minutes.divide(BigDecimal.valueOf(additionalChargeMinutes), 0, RoundingMode.FLOOR);
         var additionalCharge = additionalMinutes.multiply(additionalChargeRate);
         var totalCharge = parkingCharge.add(additionalCharge);
 

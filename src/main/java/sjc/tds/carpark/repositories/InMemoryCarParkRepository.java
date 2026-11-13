@@ -10,6 +10,7 @@ import sjc.tds.carpark.models.domain.VehicleType;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Repository
@@ -20,6 +21,13 @@ public class InMemoryCarParkRepository implements CarParkRepository {
 
     public InMemoryCarParkRepository(@Value("${carpark.repository.total-spaces}") Integer totalSpaces) {
         this.totalSpaces = totalSpaces;
+        if (totalSpaces <= 0) {
+            throw new IllegalArgumentException("totalSpaces must be greater than zero");
+        }
+    }
+
+    private String normaliseRegistration(String registration) {
+        return registration.trim().toUpperCase(Locale.ROOT);
     }
 
     @Override
@@ -36,7 +44,8 @@ public class InMemoryCarParkRepository implements CarParkRepository {
     public ParkedVehicle parkVehicle(String registration, VehicleType vehicleType)
             throws AlreadyParkedException, CarParkFullException {
 
-        if (parkedCars.containsKey(registration)) {
+        var normalisedRegistration = normaliseRegistration(registration);
+        if (parkedCars.containsKey(normalisedRegistration)) {
             throw new AlreadyParkedException("Cannot park vehicle as it is already parked: " + registration);
         }
 
@@ -44,19 +53,20 @@ public class InMemoryCarParkRepository implements CarParkRepository {
             throw new CarParkFullException("Car park is full");
         }
 
-        var parkedVehicle = new ParkedVehicle(registration, Instant.now(), null, vehicleType);
-        parkedCars.put(registration, parkedVehicle);
+        var parkedVehicle = new ParkedVehicle(normalisedRegistration, Instant.now(), null, vehicleType);
+        parkedCars.put(normalisedRegistration, parkedVehicle);
         return parkedVehicle;
 
     }
 
     @Override
     public ParkedVehicle finishParking(String registration) throws NotParkedException {
-        if (!parkedCars.containsKey(registration)) {
+        var normalisedRegistration = normaliseRegistration(registration);
+        if (!parkedCars.containsKey(normalisedRegistration)) {
             throw new NotParkedException("Cannot finish parking as vehicle is not parked: " + registration);
         }
 
-        var parkedVehicle = parkedCars.remove(registration);
+        var parkedVehicle = parkedCars.remove(normalisedRegistration);
         return new ParkedVehicle(parkedVehicle.vehicleReg(),
                 parkedVehicle.timeIn(),
                 Instant.now(),
