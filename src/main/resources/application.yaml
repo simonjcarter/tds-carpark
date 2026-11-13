@@ -6,3 +6,6 @@ carpark:
   service:
     additionalChargeRate: 1.00
     additionalChargeMinutes: 5
+  repository:
+    total-spaces: 10
+

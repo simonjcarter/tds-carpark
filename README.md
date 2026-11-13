@@ -4,13 +4,18 @@ TDS assessment application
 
 ## Running the application
 ### Pre-requisites
+- Java 25
+- Maven
 
 ### How to run
+`mvn clean spring-boot:run`
 
 ### How to run tests
+`mvn clean test`
 
 
 ## Design 
+
 
 ### Assumptions
 - Parking charge  is per minute or part thereof, so parking for one second will incur a charge of a minute
@@ -19,9 +24,16 @@ TDS assessment application
     - conflicting specification in `POST /parking` between description and response body
 
 ### Known limitations
+- No JavaDoc
+- No security
+  - SecurityChain
+  - Authorisation or Authentication
 - No CI/CD
+- No logging
+- No OpenAPI specification
+- No concurrency handling
+  - Would require `ConcurrentHashMap` and locks when dealing with space counts
 
-### Future work
 
 ### Specification
 
