@@ -1,0 +1,78 @@
+opencollection: 1.0.0
+info:
+  name: carpark
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ''
+      port: ''
+      auth:
+        username: ''
+        password: ''
+      bypassProxy: ''
+items:
+  - info:
+      name: parking
+      type: http
+      seq: 1
+    http:
+      method: GET
+      url: localhost:8080/parking
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: parking
+      type: http
+      seq: 3
+    http:
+      method: POST
+      url: localhost:8080/parking
+      body:
+        type: json
+        data: |-
+          {
+            "vehicleReg": "ABC1231", 
+            "vehicleType": 1
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+  - info:
+      name: complete
+      type: http
+      seq: 3
+    http:
+      method: POST
+      url: localhost:8080/parking/bill
+      body:
+        type: json
+        data: |-
+          {
+            "vehicleReg": "ABC1231"
+          }
+      auth: inherit
+    settings:
+      encodeUrl: true
+      timeout: 0
+      followRedirects: true
+      maxRedirects: 5
+      forwardAuthorizationHeader: false
+bundled: true
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
+    exportedAt: '2026-11-13T12:43:45.766Z'
+    exportedUsing: Bruno
