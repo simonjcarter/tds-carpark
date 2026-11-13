@@ -1,7 +1,7 @@
 package sjc.tds.carpark.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -9,30 +9,50 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler  {
 
     @ExceptionHandler(AlreadyParkedException.class)
-    public ResponseEntity<String> handleIAlreadyParkedException(AlreadyParkedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleIAlreadyParkedException(AlreadyParkedException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+
+        problem.setTitle("Already Parked");
+
+        return problem;
     }
 
     @ExceptionHandler(CarParkFullException.class)
-    public ResponseEntity<String> handleICarParkFullException(CarParkFullException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleICarParkFullException(CarParkFullException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.CONFLICT,
+                ex.getMessage()
+        );
+
+        problem.setTitle("Car Park Full");
+
+        return problem;
     }
 
     @ExceptionHandler(NotParkedException.class)
-    public ResponseEntity<String> handleINotParkedException(NotParkedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleINotParkedException(NotParkedException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+
+        problem.setTitle("Not Parked");
+
+        return problem;
     }
 
     @ExceptionHandler(ParkingNotCompletedException.class)
-    public ResponseEntity<String> handleIParkingNotCompletedException(ParkingNotCompletedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleIParkingNotCompletedException(ParkingNotCompletedException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage()
+        );
+
+        problem.setTitle("Parking Not Completed");
+
+        return problem;
     }
 }
