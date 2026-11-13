@@ -1,28 +1,65 @@
 package sjc.tds.carpark.repositories;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import sjc.tds.carpark.exceptions.AlreadyParkedException;
+import sjc.tds.carpark.exceptions.CarParkFullException;
+import sjc.tds.carpark.exceptions.NotParkedException;
 import sjc.tds.carpark.models.domain.ParkedVehicle;
 import sjc.tds.carpark.models.domain.VehicleType;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
+
 @Repository
 public class InMemoryCarParkRepository implements CarParkRepository {
+
+    public final Integer totalSpaces;
+    private final Map<String, ParkedVehicle> parkedCars = new HashMap<>();
+
+    public InMemoryCarParkRepository(@Value("${carpark.repository.total-spaces}") Integer totalSpaces) {
+        this.totalSpaces = totalSpaces;
+    }
+
     @Override
     public int getOccupiedSpaces() {
-        throw new RuntimeException("Not implemented");
+        return parkedCars.size();
     }
 
     @Override
     public int getTotalSpaces() {
-        throw new RuntimeException("Not implemented");
+        return totalSpaces;
     }
 
     @Override
-    public ParkedVehicle parkVehicle(String registration, VehicleType vehicleType) {
-        throw new RuntimeException("Not implemented");
+    public ParkedVehicle parkVehicle(String registration, VehicleType vehicleType)
+            throws AlreadyParkedException, CarParkFullException {
+
+        if (parkedCars.containsKey(registration)) {
+            throw new AlreadyParkedException();
+        }
+
+        if (parkedCars.size() >= totalSpaces) {
+            throw new CarParkFullException();
+        }
+
+        var parkedVehicle = new ParkedVehicle(registration, Instant.now(), null, vehicleType);
+        parkedCars.put(registration, parkedVehicle);
+        return parkedVehicle;
+
     }
 
     @Override
-    public ParkedVehicle finishParking(String registration) {
-        throw new RuntimeException("Not implemented");
+    public ParkedVehicle finishParking(String registration) throws NotParkedException {
+        if (!parkedCars.containsKey(registration)) {
+            throw new NotParkedException();
+        }
+
+        var parkedVehicle = parkedCars.remove(registration);
+        return new ParkedVehicle(parkedVehicle.vehicleReg(),
+                parkedVehicle.timeIn(),
+                Instant.now(),
+                parkedVehicle.vehicleType());
     }
 }
