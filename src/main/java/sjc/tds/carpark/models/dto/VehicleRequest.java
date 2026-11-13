@@ -1,4 +1,4 @@
-package sjc.tds.carpark.models;
+package sjc.tds.carpark.models.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

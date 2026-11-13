@@ -1,4 +1,4 @@
-package sjc.tds.carpark.models;
+package sjc.tds.carpark.models.dto;
 
 import java.time.Instant;
 

@@ -2,7 +2,7 @@ package sjc.tds.carpark.controllers;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-import sjc.tds.carpark.models.*;
+import sjc.tds.carpark.models.dto.*;
 import sjc.tds.carpark.services.CarParkService;
 
 @RestController
