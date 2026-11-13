@@ -33,6 +33,50 @@ class CarParkServiceImplTest {
     }
 
     @Test
+    void givenNegativeAdditionalChargeMinutes_whenCreateService_thenThrowException() {
+        var additionalChargeRate = BigDecimal.valueOf(1);
+        var additionalChargeMinutes = -1;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new CarParkServiceImpl(carParkRepository, additionalChargeRate, additionalChargeMinutes));
+    }
+
+    @Test
+    void givenNullAdditionalChargeRate_whenCreateService_thenThrowException() {
+        var additionalChargeMinutes = 5;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new CarParkServiceImpl(carParkRepository, null, additionalChargeMinutes));
+    }
+
+    @Test
+    void givenNegativeAdditionalChargeRate_whenCreateService_thenThrowException() {
+        var additionalChargeRate = new BigDecimal("-0.01");
+        var additionalChargeMinutes = 5;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new CarParkServiceImpl(carParkRepository, additionalChargeRate, additionalChargeMinutes));
+    }
+
+    @Test
+    void givenZeroAdditionalChargeMinutes_whenCreateService_thenDoNotThrowException() {
+        var additionalChargeRate = BigDecimal.valueOf(1);
+        var additionalChargeMinutes = 0;
+
+        assertDoesNotThrow(
+                () -> new CarParkServiceImpl(carParkRepository, additionalChargeRate, additionalChargeMinutes));
+    }
+
+    @Test
+    void givenZeroAdditionalChargeRate_whenCreateService_thenDoNotThrowException() {
+        var additionalChargeRate = BigDecimal.ZERO;
+        var additionalChargeMinutes = 5;
+
+        assertDoesNotThrow(
+                () -> new CarParkServiceImpl(carParkRepository, additionalChargeRate, additionalChargeMinutes));
+    }
+
+    @Test
     void givenCarParkFull_whenParkVehicle_thenThrowException() throws Exception {
         var registration = "ABC123";
 
@@ -119,12 +163,6 @@ class CarParkServiceImplTest {
     @Test
     void givenVehicleNotParked_givenCompleteParking_thenThrowException() throws Exception {
         var registration = "ABC123";
-        var vehicle = new ParkedVehicle(
-                registration,
-                Instant.now(),
-                null,
-                VehicleType.SMALL
-        );
         when(carParkRepository.finishParking(registration)).thenThrow(new NotParkedException());
 
         assertThrows(
@@ -166,6 +204,42 @@ class CarParkServiceImplTest {
         when(carParkRepository.finishParking(registration)).thenReturn(vehicle);
 
         var completedParking = carParkService.completeParking(registration);
+        assertEquals(1.5, completedParking.vehicleCharge());
+    }
+
+    @Test
+    void givenZeroAdditionalChargeRate_whenCompleteParking_thenOnlyChargeVehicleRate() throws Exception {
+        carParkService = new CarParkServiceImpl(carParkRepository, BigDecimal.ZERO, 5);
+        var registration = "ABC123";
+        var startTime = Instant.now();
+        var parkTimeSeconds = 60 * 15;
+        var vehicle = new ParkedVehicle(
+                registration,
+                startTime,
+                startTime.plusSeconds(parkTimeSeconds),
+                VehicleType.SMALL
+        );
+        when(carParkRepository.finishParking(registration)).thenReturn(vehicle);
+
+        var completedParking = assertDoesNotThrow(() -> carParkService.completeParking(registration));
+        assertEquals(1.5, completedParking.vehicleCharge());
+    }
+
+    @Test
+    void givenZeroAdditionalChargeMinutes_whenCompleteParking_thenOnlyChargeVehicleRate() throws Exception {
+        carParkService = new CarParkServiceImpl(carParkRepository, BigDecimal.valueOf(1), 0);
+        var registration = "ABC123";
+        var startTime = Instant.now();
+        var parkTimeSeconds = 60 * 15;
+        var vehicle = new ParkedVehicle(
+                registration,
+                startTime,
+                startTime.plusSeconds(parkTimeSeconds),
+                VehicleType.SMALL
+        );
+        when(carParkRepository.finishParking(registration)).thenReturn(vehicle);
+
+        var completedParking = assertDoesNotThrow(() -> carParkService.completeParking(registration));
         assertEquals(1.5, completedParking.vehicleCharge());
     }
 

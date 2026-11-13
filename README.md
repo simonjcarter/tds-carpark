@@ -13,18 +13,28 @@ TDS assessment application
 ### How to run tests
 `mvn clean test`
 
+### Trying the API
+- Default URL is localhost:8080
+- Endpoints are in the specification
+- There is a health endpoint at /actuator/health
+
+### Configuration
+`application.yaml` contains configuration parameters for the additional charges and car park size
 
 ## Design 
 
 
 ### Assumptions
 - Parking charge  is per minute or part thereof, so parking for one second will incur a charge of a minute
-- Additional charge is not for partial periods, so four minutes would not incur an additional charge.  However, four minutes and one secound would as it will be rounded up to five minutes
+- Additional charge is not for partial periods, so four minutes would not incur an additional charge.  However, four minutes and one second would as it will be rounded up to five minutes
 - The vehicles are **not** linked to a space
     - conflicting specification in `POST /parking` between description and response body
+- Registrations are case-insensitive
+- Zero additional charge rate or minutes will result in just the base charge being applied
+- Stuck to the spec to return a `double` but `BigDecimal` would be better
 
 ### Known limitations
-- No JavaDoc
+- No JavaDoc (other than CarParkService)
 - No security
   - SecurityChain
   - Authorisation or Authentication
@@ -33,6 +43,7 @@ TDS assessment application
 - No OpenAPI specification
 - No concurrency handling
   - Would require `ConcurrentHashMap` and locks when dealing with space counts
+- No retry mechanism, a failure calculating the bill would result in a lost record as the vehicle has already been removed from the map
 
 
 ### Specification
